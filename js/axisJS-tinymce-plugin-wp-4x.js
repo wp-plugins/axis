@@ -92,10 +92,10 @@ tinymce.PluginManager.add('Axis', function(editor) {
     dom.setAttrib( node, 'data-wp-chartselect', 1 );
     rectangle = dom.getRect( node );
 
-    toolbarHtml = '<div class="dashicons dashicons-chart-area edit" data-mce-bogus="1"></div>' +
-      '<div class="dashicons dashicons-no-alt remove" data-mce-bogus="1"></div>';
+    toolbarHtml = '<i class="dashicons dashicons-chart-area edit" data-mce-bogus="1"></i>' +
+      '<i class="dashicons dashicons-no-alt remove" data-mce-bogus="1"></i>';
 
-    toolbar = dom.create( 'div', {
+    toolbar = dom.create( 'p', {
       'id': 'wp-image-toolbar',
       'data-mce-bogus': '1',
       'contenteditable': false
@@ -161,7 +161,7 @@ tinymce.PluginManager.add('Axis', function(editor) {
       return;
     }
 
-    if ( node.nodeName === 'DIV' && dom.getParent( node, '#wp-image-toolbar' ) ) {
+    if ( node.nodeName === 'I' && dom.getParent( node, '#wp-image-toolbar' ) ) {
       image = dom.select( 'img[data-wp-chartselect]' )[0];
 
       if ( image ) {
