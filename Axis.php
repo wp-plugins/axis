@@ -24,6 +24,7 @@ class AxisWP {
 
 	public function __construct() {
 		// Backend stuff
+		// @TODO This probably needs an is_admin()...
 		add_filter( 'mce_buttons', array( 'AxisWP', 'register_buttons' ) );
 		add_filter( 'kses_allowed_protocols', array( 'AxisWP', 'allow_data_protocol' ) );
 		add_filter( 'tiny_mce_before_init', array( 'AxisWP', 'tinymce_options' ) );
@@ -42,7 +43,15 @@ class AxisWP {
 	 */
 	public static function convert_png_to_interactive( $content ) {
 		$dom = new DOMDocument;
-		$dom->loadHTML( $content );
+
+		$phpversion = explode('.', phpversion());
+		if ($phpversion[1] <= 3) {
+			$dom->loadHTML( $content );
+		} else {
+			// Via: http://stackoverflow.com/a/22490902/467760 (may not work on older PHP)
+			$dom->loadHTML( $content, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		}
+
 		$xpath = new DOMXPath( $dom );
 		$charts = $xpath->query( "//*[contains(@class, 'axisChart')]" );
 
@@ -54,13 +63,12 @@ class AxisWP {
 			$chart->parentNode->replaceChild( $div, $chart );
 		}
 
-		// via: http://stackoverflow.com/a/5172548/467760
-		// loadHTML causes a !DOCTYPE tag to be added, so remove it:
-		$dom->removeChild( $dom->firstChild );
-
-		// it also wraps the code in <html><body></body></html>, so remove that:
-		$dom->replaceChild( $dom->firstChild->firstChild->firstChild, $dom->firstChild );
-
+		if ($phpversion[1] <= 3) { // Via: http://stackoverflow.com/a/6953808/467760
+			# remove <!DOCTYPE
+			$doc->removeChild($doc->firstChild);
+			# remove <html><body></body></html>
+			$doc->replaceChild($doc->firstChild->firstChild->firstChild, $doc->firstChild);
+		}
 		$content = $dom->saveHTML();
 
 		return $content;
@@ -95,7 +103,10 @@ class AxisWP {
 	 */
 	public static function register_tinymce_javascript( $plugin_array ) {
 		global $wp_version;
-		if ( explode( '.', $wp_version )[0] > 3 ) {
+		$exploded_version = explode( '.', $wp_version );
+		$major_version = $exploded_version[0];
+
+		if ( $major_version > 3 ) {
 			$plugin_array['Axis'] = plugins_url( '/js/axisJS-tinymce-plugin-wp-4x.js', __file__ );
 		} else {
 			$plugin_array['Axis'] = plugins_url( '/js/axisJS-tinymce-plugin.js', __file__ );
