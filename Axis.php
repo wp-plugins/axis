@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Axis
-Version: 1.0.1
+Version: 1.0.2
 Description: Plugin for adding charts to WordPress posts
 Author: Ændrew Rininsland
 Author URI: http://www.aendrew.com
@@ -165,8 +165,7 @@ class AxisWP {
 	 */
 	public static function insert_axis_attachment_callback() {
 		// Get config
-		$axis_config = json_decode( stripslashes( $_POST['axisConfig'] ), true );
-
+		$axis_config = json_decode( stripslashes( file_get_contents( 'php://input' ) ), true );
 		// This check might also need a nonce
 		if ( ! current_user_can( 'upload_files' )
 			|| ! current_user_can( 'edit_post', $_POST['parentID'] )
